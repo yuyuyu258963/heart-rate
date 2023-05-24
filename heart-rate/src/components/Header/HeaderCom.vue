@@ -115,10 +115,11 @@ export default defineComponent({
 <style lang="scss" >
 
   #header-div{
-    background-color: black;
+    background-color: #1d2129;
     height: 60px;
     overflow: hidden;
     padding: 3px 8px;
+    border-bottom: 1px solid white;
   }
   #header-row{
     height: 100%;
