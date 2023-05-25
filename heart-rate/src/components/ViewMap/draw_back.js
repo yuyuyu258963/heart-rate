@@ -1,13 +1,17 @@
+import * as d3 from "d3";
+
+
+// eslint-disable-next-line no-unused-vars
 const drawTools = {
     //画小的表格背景
-    // construct(){
-    //     this.speed = 5;
-    //     this.lineData = [];
-    //     this.x = 0;
-    //     this.y = 0;
-    //     this.startX = 0;
-    //     this.startY = 0;
-    // },
+    construct(){
+        this.speed = 5;
+        this.lineData = [];
+        this.x = 0;
+        this.y = 0;
+        this.startX = 0;
+        this.startY = 0;
+    },
     drawSmallGrid(ctx,width,height){
         //设置线条颜色
         // console.log("dasds")
@@ -33,6 +37,7 @@ const drawTools = {
             ctx.stroke();
         }
         ctx.closePath();
+        ctx.save();
     },
     // 绘制大间隔的网格
     drawBigGrid(ctx,width,height){
@@ -68,6 +73,7 @@ const drawTools = {
         ctx.lineTo(point[0] * 5, startPointY + point[2]);
         ctx.stroke();
         ctx.closePath();
+        ctx.save();
     }
     
     
@@ -76,11 +82,11 @@ const drawTools = {
 
 function drawBackground(canvasBody, ctxSize) {
     //加一个判断，如果不支持canvas也不至于报错
-    const data = [];
-    for (let index = 0; index < 300; index++) {
-        data.push(Math.random() * 20);
-    }
-    
+    const data = [0];
+    // for (let index = 0; index < 300; index++) {
+    //     data.push(Math.random() * 20);
+    // }
+
     if (!canvasBody.getContext) {
         console.log("err");
     }
@@ -89,18 +95,35 @@ function drawBackground(canvasBody, ctxSize) {
     ctx.translate(0.5,0.5);
     // const [height, width] = [canvasBody.clientHeight, canvasBody.clientWidth]
     let [width, height] = [ctxSize.ctxWidth, ctxSize.ctxHeight];
-    console.dir([width, height])
 
-    // drawTools.drawSmallGrid(ctx, width,height);
-    // drawTools.drawBigGrid(ctx, width,height);
+    const scaller = d3.scaleLinear()
+        .domain([0, 20])
+        .range([-height/2, height/2]);
+    
+    for (let index = 0; index < 300; index++) {
+        data.push(scaller(Math.random() * 20));
+    }
+
+    console.dir(data)
+    
+    
+    drawTools.drawSmallGrid(ctx, width,height);
+    drawTools.drawBigGrid(ctx, width,height);
 
     for (let index = 1; index < data.length; index++) {
         setTimeout(() => {
-            drawTools.drawHeartLine(ctx, width, height, [index, data[index-1], data[index]]);
+            drawTools.drawHeartLine(ctx, width, height, [index, data[index-1], data[index],]);
         }, 100 * index);
     }
 
+    for(let i = 0; i < data.length; i++) {
+        setTimeout(() => {
+            canvasBody.style.left = - i * 5 + "px";
+        }, 200 * i);
+    }
+
 }
+
 
 
 
