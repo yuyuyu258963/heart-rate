@@ -1,124 +1,293 @@
 import * as d3 from "d3";
-
-
+import GridDraw from "./draw_grid";
+/**
+ * 绘制图形的类
+ */
 // eslint-disable-next-line no-unused-vars
-const drawTools = {
-    //画小的表格背景
-    construct(){
-        this.speed = 5;
-        this.lineData = [];
-        this.x = 0;
-        this.y = 0;
-        this.startX = 0;
-        this.startY = 0;
-    },
-    drawSmallGrid(ctx,width,height){
-        //设置线条颜色
-        // console.log("dasds")
-        // ctx.strokeStyle = 'red';
-        ctx.strokeStyle = '#f1dedf';
-        //线条粗细
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        //画竖线
-        //循环一下，初始值为0，宽度为画布的宽度，每次走5个像素
-        for(let x = 0; x <= width; x += 5){
-            //每次从新定位一下从哪里开始画，x轴每次变化y轴始终是0
-            ctx.moveTo(x,0);
-            //每次画整个画布高的线
-            ctx.lineTo(x,height);
-            console.log(x,height);
-            ctx.stroke();
-        }
-        //横线同理
-        for(let y = 0; y <= height; y += 5){
-            ctx.moveTo(0,y);
-            ctx.lineTo(width,y);
-            ctx.stroke();
-        }
-        ctx.closePath();
+class drawTools {
+    constructor(
+        lineWidth=1,
+        step=5,
+        warningLineColor="#f53f3f",
+        normalLineColor="#1e80ff",
+        limit=1/4,
+        yScale=8/9,
+    ){
+        this.step = step;                    //每个数据的时间间隔
+        this.limit = limit;                 //上限站画布的比例
+        this.lineWidth = lineWidth;         //线的宽度
+        this.yScale = yScale;               //总坐标高度的比例尺
+        this.warningLineColor = warningLineColor;   //异常线的颜色
+        this.normalLineColor = normalLineColor;     //正常线的颜色
+        this.nodeIndex = 0;                         //当前绘制结点的索引
+        this.preNode = null;                        //记录前一个节点
+        this.historyNodes = [];
+        console.log("Starting drawTools Tools");
+    }
+
+    /**
+     * 绘制一个点的数据
+     * 将之前的绘制结点记录下来
+     * @param {*} point 
+     */
+    push_data(point) {
+        this.nodeIndex++;
+        this.historyNodes.push(this.preNode);
+        this.preNode = point;
+    }
+    /**
+     * 
+     * @param {*} ctx 
+     * @param {*} width 
+     * @param {*} height 
+     * @param {*} point [0] 索引 [1] 前一个y [2]当前y 
+     */
+    drawLine(ctx,height, point){
+        ctx.lineCap = 'round';
         ctx.save();
-    },
-    // 绘制大间隔的网格
-    drawBigGrid(ctx,width,height){
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.strokeStyle = '#bedce2';
-        //唯一不一样的就是颜色和间隔
-        for(let x = 0; x <= width; x += 20){
-            ctx.moveTo(x,0);
-            ctx.lineTo(x,height);
-            ctx.stroke();
-        }
-        for(let y = 0; y <= height; y += 20){
-            ctx.moveTo(0,y);
-            ctx.lineTo(width,y);
-            ctx.stroke();
-        }
-        ctx.closePath();
-    },
-    drawHeartLine(ctx,width,height, point){
+        const lineWidth = 1;
+        const step = this.step;
+        // const yLimit = this.limit;
+        const yLimit = height * this.limit;
+        
         ctx.beginPath();
         const startPointY = height / 2;
-        // console.dir(height);
-        // let startPointX = 0;
-        ctx.strokeStyle = "green";
-        ctx.lineWidth = 3;
+        ctx.strokeStyle = this.normalLineColor;
+        ctx.lineWidth = lineWidth;
         if (point[0] === 0) {
             ctx.moveTo(0, startPointY);
         } else {
         //否则就移动到上一次画的位置
-            ctx.moveTo((point[0] - 1) * 5, startPointY + point[1]);
+            ctx.moveTo((point[0] - 1) * step, startPointY + point[1]);
         }
-        ctx.lineTo(point[0] * 5, startPointY + point[2]);
-        ctx.stroke();
-        ctx.closePath();
-        ctx.save();
+        
+        if (point[1] > yLimit && point[2] > yLimit) {
+            // 两个都大于最大界限
+            ctx.strokeStyle = this.warningLineColor;
+            ctx.lineWidth = lineWidth;
+            ctx.lineTo(point[0] * 5, startPointY + point[2]);
+            ctx.stroke();
+
+        } else if (point[1] > yLimit && point[2] < yLimit){
+            // 第一个超过最大界限
+            // 另外一个小于最小界限
+            ctx.strokeStyle = this.warningLineColor;
+            ctx.lineWidth = lineWidth;
+            let x;
+            x = point[0] * step - step + step * (point[1] - yLimit) / (point[1] - point[2]);
+            ctx.lineTo(x, startPointY + yLimit);
+            ctx.stroke();
+
+            if (point[2] > -yLimit){
+                ctx.beginPath();
+                ctx.moveTo(x, startPointY + yLimit);
+                ctx.strokeStyle = this.normalLineColor;
+                ctx.lineWidth = lineWidth;
+                ctx.lineTo(point[0] * step, startPointY + point[2]);
+                ctx.stroke();
+            } else {
+                ctx.beginPath();
+                ctx.moveTo(x, startPointY + yLimit);
+                ctx.strokeStyle = this.normalLineColor;
+                ctx.lineWidth = lineWidth;
+                x = point[0] * step - step + step * (point[1] + yLimit) / (point[1] - point[2]);
+                ctx.lineTo(x, startPointY + -yLimit);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(x, startPointY + -yLimit);
+                ctx.strokeStyle = this.warningLineColor;
+                ctx.lineWidth = lineWidth;
+                ctx.lineTo(point[0] * step, startPointY + point[2]);
+                ctx.stroke();
+            }
+            
+
+        } else if (point[1] < yLimit && point[2] > yLimit) {
+            // 第一个小于最大界限
+            // 另一个大于最大界限
+            // 一些问题
+            let x;
+            if (point[1] > -yLimit){
+                ctx.lineWidth = lineWidth;
+                x = point[0] * step - step + step * (yLimit - point[1]) / ( point[2] - point[1]);
+                ctx.lineTo(x, startPointY + yLimit);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.strokeStyle = this.warningLineColor;
+                ctx.moveTo(x, startPointY + yLimit);
+                ctx.lineTo(point[0] * step, startPointY + point[2]);
+
+            } else {
+                ctx.strokeStyle = this.warningLineColor;
+                x = point[0] * step - step + step * (-yLimit - point[1]) / ( point[2] - point[1]);
+                ctx.lineTo(x, startPointY - yLimit);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.strokeStyle = this.normalLineColor;
+                ctx.moveTo(x, startPointY - yLimit);
+                x = point[0] * step - step + step * (yLimit - point[1]) / ( point[2] - point[1]);
+                ctx.lineTo(x, startPointY + yLimit);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.strokeStyle = this.warningLineColor;
+                ctx.moveTo(x, startPointY + yLimit);
+                ctx.lineTo(point[0] * step, startPointY + point[2]);
+                ctx.stroke();
+                
+            }
+            
+
+            ctx.beginPath();
+            ctx.moveTo(x, startPointY + yLimit);
+            ctx.strokeStyle = this.warningLineColor;
+            ctx.lineWidth = lineWidth;
+
+            ctx.lineTo(point[0] * step, startPointY + point[2]);
+            ctx.stroke();
+        } else {
+            // 两个都小于最大界限
+            // ctx.lineTo(point[0] * 5, startPointY + point[2]);
+            // ctx.stroke();
+            
+            if(point[1] < -yLimit && point[2] < -yLimit){
+                ctx.strokeStyle = this.warningLineColor;
+                ctx.lineTo(point[0] * step, startPointY + point[2]);
+                ctx.stroke();
+            } else if (point[1] > -yLimit && point[2] < -yLimit){
+                let x;
+                x = step * point[0] - step + step * (point[1] + yLimit) / (point[1] - point[2])
+                ctx.lineTo(x, startPointY - yLimit);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.strokeStyle = this.warningLineColor;
+                ctx.moveTo(x, startPointY -yLimit);
+                ctx.lineTo(point[0] * step, startPointY + point[2]);
+                ctx.stroke();
+                
+            } else if(point[2] > -yLimit && point[1] < -yLimit) {
+                ctx.strokeStyle = this.warningLineColor;
+                let x;
+                x = step * point[0] - step + step * (-point[1] - yLimit) / (-point[1] + point[2]);
+                ctx.lineTo(x, startPointY - yLimit);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.strokeStyle = this.normalLineColor;
+                ctx.moveTo(x, startPointY -yLimit);
+                ctx.lineTo(point[0] * step, startPointY + point[2]);
+                ctx.stroke();
+
+            } else if (point[2] > -yLimit && point[1] > -yLimit){
+                ctx.strokeStyle = this.normalLineColor;
+                ctx.lineTo(point[0] * step, startPointY + point[2]);
+                ctx.stroke();
+            }
+            
+            
+            
+        }
+
+        ctx.restore();
     }
-    
-    
+
+    /**
+     * 绘制出心跳图的线
+     * @param {*} ctx 
+     * @param {*} height 
+     * @param {*} point  节点的y坐标
+     * @returns 
+     */
+    drawHeartLine(ctx, height, point){
+        if (this.nodeIndex==0) {
+            this.nodeIndex++;
+            this.preNode = point;
+            return ;
+        }
+        this.drawLine(ctx, height, [
+            this.nodeIndex,
+            this.preNode,
+            point
+        ]);
+        this.nodeIndex++;
+        this.preNode = point;
+    }
 }
 
+/**
+ * 设置颜色比例尺
+ * @param {*} data 
+ * @param {*} height 
+ * @returns 
+ */
+const ScaleHandler =(data, height) => {
+    const normolizeLinear = d3.scaleLinear()
+				.domain([d3.min(data), d3.max(data)])
+				.range([0,1]);
+    
+    const Ylinear = d3.scaleLinear()
+                        .domain([d3.min(data), d3.max(data)])
+                        .range([-height/2, height/2]);
 
+    var a = d3.rgb(255,0,0);	//红色
+    var b = d3.rgb(0,255,0);	//绿色
+        
+    var compute = d3.interpolate(a,b);
+    
+    const colorLinear = (d) => compute(normolizeLinear(d));
+
+    return {
+        normolizeLinear,
+        Ylinear,
+        colorLinear,
+    };
+};
+
+
+/**
+ * 执行绘制任务
+ */
 function drawBackground(canvasBody, ctxSize) {
     //加一个判断，如果不支持canvas也不至于报错
-    const data = [0];
-    // for (let index = 0; index < 300; index++) {
-    //     data.push(Math.random() * 20);
-    // }
-
+    let data = [0];
+    for (let index = 0; index < 300; index++) {
+        data.push(Math.random() * 20);
+    }
     if (!canvasBody.getContext) {
         console.log("err");
     }
-
-    let ctx = canvasBody.getContext('2d');
+    const ctx = canvasBody.getContext('2d');
+    // 更加清晰
     ctx.translate(0.5,0.5);
-    // const [height, width] = [canvasBody.clientHeight, canvasBody.clientWidth]
     let [width, height] = [ctxSize.ctxWidth, ctxSize.ctxHeight];
 
-    const scaller = d3.scaleLinear()
-        .domain([0, 20])
-        .range([-height/2, height/2]);
+    const {Ylinear:scaller, } = ScaleHandler(data, height);
     
-    for (let index = 0; index < 300; index++) {
-        data.push(scaller(Math.random() * 20));
+    for (let index = 0; index < data.length; index++) {
+        data[index] = scaller(data[index]);
+        
     }
+    const gridTool = new GridDraw(width,height);
+    gridTool.drawAllGrid(ctx);
+    const myDrawTool = new drawTools();
 
-    console.dir(data)
-    
-    
-    drawTools.drawSmallGrid(ctx, width,height);
-    drawTools.drawBigGrid(ctx, width,height);
-
-    for (let index = 1; index < data.length; index++) {
+    for (let index = 0; index < data.length; index++) {
         setTimeout(() => {
-            drawTools.drawHeartLine(ctx, width, height, [index, data[index-1], data[index],]);
+            myDrawTool.drawHeartLine(ctx, height, data[index]);
         }, 100 * index);
     }
 
     for(let i = 0; i < data.length; i++) {
         setTimeout(() => {
-            canvasBody.style.left = - i * 5 + "px";
+            d3.select(canvasBody)
+                .transition(200)
+                .style('left', - i * 5 + "px")
+                .style("transition", `all linear 0.2s`);
+            
         }, 200 * i);
     }
 
@@ -129,4 +298,4 @@ function drawBackground(canvasBody, ctxSize) {
 
 export {
     drawBackground
-}
+};

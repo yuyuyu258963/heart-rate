@@ -55,7 +55,8 @@ export default defineComponent({
     position: relative;
 
     /* 移动平滑 */
-    transition: all linear 1s;
+    /* transition: all linear 0.2s; */
+    color: rgb(178, 199, 207);
 }
 
 
