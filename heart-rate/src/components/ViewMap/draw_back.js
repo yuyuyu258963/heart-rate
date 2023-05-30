@@ -6,22 +6,24 @@ import GridDraw from "./draw_grid";
 // eslint-disable-next-line no-unused-vars
 class drawTools {
     constructor(
-        lineWidth=1,
         step=5,
+        limit=2/3,
+        yScale=1/4,
+        yStartPositions=1/4,
+        lineWidth=1,
         warningLineColor="#f53f3f",
         normalLineColor="#1e80ff",
-        limit=1/4,
-        yScale=8/9,
     ){
-        this.step = step;                    //每个数据的时间间隔
-        this.limit = limit;                 //上限站画布的比例
-        this.lineWidth = lineWidth;         //线的宽度
-        this.yScale = yScale;               //总坐标高度的比例尺
-        this.warningLineColor = warningLineColor;   //异常线的颜色
-        this.normalLineColor = normalLineColor;     //正常线的颜色
         this.nodeIndex = 0;                         //当前绘制结点的索引
         this.preNode = null;                        //记录前一个节点
-        this.historyNodes = [];
+        this.step = step;                    //每个数据的时间间隔
+        this.limit = limit;                 //上限站画布的比例
+        this.yScale = yScale;               //总坐标高度的比例尺
+        this.lineWidth = lineWidth;         //线的宽度
+        this.yStartPositions = yStartPositions;     //起始绘制的高度
+        this.warningLineColor = warningLineColor;   //异常线的颜色
+        this.normalLineColor = normalLineColor;     //正常线的颜色
+        this.historyNodes = [];                     //已经绘制的节点位置
         console.log("Starting drawTools Tools");
     }
 
@@ -45,13 +47,15 @@ class drawTools {
     drawLine(ctx,height, point){
         ctx.lineCap = 'round';
         ctx.save();
+        point[1] *= this.yScale; 
+        point[2] *= this.yScale; 
+
         const lineWidth = 1;
         const step = this.step;
-        // const yLimit = this.limit;
-        const yLimit = height * this.limit;
+        const yLimit = height / 2 * this.limit * this.yScale ;
         
         ctx.beginPath();
-        const startPointY = height / 2;
+        const startPointY = height * this.yStartPositions;
         ctx.strokeStyle = this.normalLineColor;
         ctx.lineWidth = lineWidth;
         if (point[0] === 0) {
@@ -150,9 +154,6 @@ class drawTools {
             ctx.stroke();
         } else {
             // 两个都小于最大界限
-            // ctx.lineTo(point[0] * 5, startPointY + point[2]);
-            // ctx.stroke();
-            
             if(point[1] < -yLimit && point[2] < -yLimit){
                 ctx.strokeStyle = this.warningLineColor;
                 ctx.lineTo(point[0] * step, startPointY + point[2]);
@@ -203,6 +204,7 @@ class drawTools {
      * @returns 
      */
     drawHeartLine(ctx, height, point){
+        // point = point * this.yScale;
         if (this.nodeIndex==0) {
             this.nodeIndex++;
             this.preNode = point;
@@ -263,6 +265,7 @@ function drawBackground(canvasBody, ctxSize) {
     const ctx = canvasBody.getContext('2d');
     // 更加清晰
     ctx.translate(0.5,0.5);
+    ctx.save();
     let [width, height] = [ctxSize.ctxWidth, ctxSize.ctxHeight];
 
     const {Ylinear:scaller, } = ScaleHandler(data, height);
@@ -272,13 +275,16 @@ function drawBackground(canvasBody, ctxSize) {
         
     }
     const gridTool = new GridDraw(width,height);
-    gridTool.drawAllGrid(ctx);
     const myDrawTool = new drawTools();
+    gridTool.drawAllGrid(ctx);
 
     for (let index = 0; index < data.length; index++) {
+        if(index < 50){
+            myDrawTool.drawHeartLine(ctx, height, data[index]);
+        } else
         setTimeout(() => {
             myDrawTool.drawHeartLine(ctx, height, data[index]);
-        }, 100 * index);
+        }, 200 * (index - 50));
     }
 
     for(let i = 0; i < data.length; i++) {
@@ -293,7 +299,12 @@ function drawBackground(canvasBody, ctxSize) {
 
 }
 
+// function getMockData(length=100) {
+//     let data = [0];
+    
 
+//     return data;
+// }
 
 
 export {
