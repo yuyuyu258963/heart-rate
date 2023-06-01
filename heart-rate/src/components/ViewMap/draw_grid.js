@@ -14,15 +14,17 @@ export default class GridDraw {
     constructor(
         mapWidth,
         mapHeight,
+        gridWidth=1,
+        xPadding=0,
         smallGridColor='#bedce2', // #f1dedf
         bigGridColor='rgb(178, 199, 207)',
-        gridWidth=1,
         smallGridStep=15,
         bigGridStep=30,
     ){
         console.log('Init Grid Tool');
         this.mapWidth = mapWidth;
         this.mapHeight = mapHeight;
+        this.xPadding = xPadding;
         this.gridWidth = gridWidth;
         this.bigGridStep = bigGridStep;
         this.smallGridStep = smallGridStep;

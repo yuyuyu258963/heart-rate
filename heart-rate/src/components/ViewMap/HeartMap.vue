@@ -1,7 +1,6 @@
 <template>
     <div id="heart-map-div" >
         <HeatMapItem />
-            
     </div>
 </template>
 
