@@ -35,14 +35,14 @@ export default class DrawTaskMainController {
         this.drawActionController.runAnimation(
             (index) => {
                 // 将每次的都画完，然后接下一个
-                this.DrawTool.drawHeartLine(this.ctx, this.canvasSize.height, this.data[index]);
+                this.DrawTool.drawHeartLine(this.ctx, this.canvasSize.height, this.getLineData(index));
                 if(this.isChangeDrawMap(index)){
                         this.CreateCanvasElement(
                             this.canvasSize.width,
                             this.canvasSize.height,
                         );
                     this.DrawTool.initNewAnimation();
-                    this.DrawTool.drawHeartLine(this.ctx, this.canvasSize.height, this.data[index]);
+                    this.DrawTool.drawHeartLine(this.ctx, this.canvasSize.height, this.getLineData(index));
                 }
             }
         );
@@ -55,13 +55,25 @@ export default class DrawTaskMainController {
         const {backAnimationController} = this;
         backAnimationController.runAnimation(
             (index) => {
-                
                 d3.selectAll(".heart-map-item")
                     // .transition(100)
                     .style('left', this.getBackLeft(index) + "px")
                     .style("transition", `all linear 0.1s`);
             }
         );
+    }
+
+    getLineData(index) {
+        return index >= this.data.length ? 0 : this.data[index];
+    }
+
+    /**
+     * 停止动画
+     */
+    pauseAnimation() {
+        this.backAnimationController.pauseAnimation(true);
+        this.drawActionController.pauseAnimation(true);
+
     }
 
     /**
@@ -97,13 +109,13 @@ export default class DrawTaskMainController {
         canvas.classList = ["heart-map-item"];
         canvas.style.transition = "none";
         console.dir(d3.selectAll(".heart-map-item"));
-        const preElement = d3.selectAll(".heart-map-item")._groups[0][1];
-        d3.select(preElement)
-            .style("transition", `all linear 1000000s`)
-            .style("position", "absolute")
-            .style("left", "0px");
-        
-        this.say("dasda");
+        // const preElement = d3.selectAll(".heart-map-item")._groups[0][1];
+        // d3.select(preElement)
+        //     .style("transition", `all linear 1000000s`)
+        //     .style("position", "absolute")
+        //     .style("left", "0px");
+        const lCanvas = document.querySelectorAll(".heart-map-item")[1];
+        lCanvas.setAttribute("style", "position:absolute;left:0px");
 
         this.deleteElements();
         d3.selectAll(".heart-map-item")
@@ -115,6 +127,9 @@ export default class DrawTaskMainController {
         this.ctx.translate(0.5,0.5);
         this.ctx.save();
         this.gridTool.drawAllGrid(this.ctx);
+        this.ctx.shadowBlur = 20;
+        this.ctx.shadowColor = "white";
+        this.ctx.save();
     }
 
     /**

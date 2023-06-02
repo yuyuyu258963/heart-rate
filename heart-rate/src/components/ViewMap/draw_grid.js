@@ -16,8 +16,8 @@ export default class GridDraw {
         mapHeight,
         gridWidth=1,
         xPadding=0,
-        smallGridColor='#bedce2', // #f1dedf
-        bigGridColor='rgb(178, 199, 207)',
+        smallGridColor='#023e7d', // #f1dedf
+        bigGridColor='rgb(0,10,37)',
         smallGridStep=15,
         bigGridStep=30,
     ){
@@ -47,7 +47,7 @@ export default class GridDraw {
         // ctx.strokeStyle = "red";
         // ctx.strokeStyle = ;
         //画竖线
-        for(let x = 0; x <= width; x += smallStep){
+        for(let x = 0; x <= width; x += smallStep * 4){
             //每次从新定位一下从哪里开始画，x轴每次变化y轴始终是0
             ctx.moveTo(x,0);
             //每次画整个画布高的线
@@ -55,7 +55,7 @@ export default class GridDraw {
             ctx.stroke();
         }
         //横线同理
-        for(let y = 0; y <= height; y += smallStep){
+        for(let y = 0; y <= height; y += smallStep * 3){
             ctx.moveTo(0,y);
             ctx.lineTo(width,y);
             ctx.stroke();
@@ -71,6 +71,7 @@ export default class GridDraw {
         const bigStep = this.bigGridStep;
         const width = this.mapWidth;
         const height = this.mapHeight;
+
         ctx.beginPath();
         ctx.lineWidth = this.gridWidth;
         ctx.strokeStyle = this.bigGridColor;
@@ -81,17 +82,17 @@ export default class GridDraw {
             ctx.lineTo(x,height);
             ctx.stroke();
         }
-        for(let y = 0; y <= height; y += bigStep){
+        for(let y = 0; y <= height; y += bigStep * 2){
             ctx.moveTo(0,y);
             ctx.lineTo(width,y);
             ctx.stroke();
         }
-        // ctx.closePath();
+        ctx.closePath();
         ctx.restore();
     }
 
     drawAllGrid(ctx){
         this.drawSmallGrid(ctx);
-        this.drawBigGrid(ctx);
+        // this.drawBigGrid(ctx);
     }
 }

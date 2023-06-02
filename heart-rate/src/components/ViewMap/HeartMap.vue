@@ -34,7 +34,7 @@ export default defineComponent({
     width: 60%;
     height: 90%;
     border: 1px solid red;
-    background-color: white;
+    // background-color: white;
     color: #bedce2;
     display: inline-flex;
     justify-content: center;

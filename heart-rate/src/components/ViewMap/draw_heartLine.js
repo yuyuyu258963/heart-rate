@@ -10,7 +10,8 @@ export default class drawTools {
         yStartPositions=1/4,
         lineWidth=1,
         warningLineColor="#f53f3f",
-        normalLineColor="#1e80ff",
+        normalLineColor="rgb(119, 150, 235)",
+        // normalLineColor="#1e80ff",
     ){
         this.nodeIndex = 0;                         //当前绘制结点的索引
         this.preNode = null;                        //记录前一个节点

@@ -10,10 +10,14 @@ export default class MapAnimationController {
         this.dataIdx = -1;
         this.limitCount = limitCount;
         this.runStep=5;
+        this.useLimit = false;
+        this.pause = false;
     }
 
     get dataIndex(){
-        this.dataIdx++;
+        if(!this.pause){
+            this.dataIdx++;
+        }
         return this.dataIdx;
     }
     /**
@@ -22,6 +26,10 @@ export default class MapAnimationController {
         this.dataIdx = step;
     }
     
+    pauseAnimation(){
+        this.pause = !this.pause;
+    }
+
     /**
      * setTimeout 实习setTimeInterval
      * @param {*} fn 
@@ -35,7 +43,12 @@ export default class MapAnimationController {
         let timerId;
     
         let callback = () => {
-            if(this.limitCount > this.dataIdx){
+            // 停止后就不再运行了
+            if(this.pause){
+                timerId = setTimeout(callback, delay);
+                return;
+            }
+            if(this.limitCount > this.dataIdx || !this.useLimit){
                 fn(this.dataIndex);
                 timerId = setTimeout(callback, delay);
             } else {

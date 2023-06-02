@@ -39,7 +39,7 @@ const ScaleHandler =(data, height) => {
  * @param {*} length 
  * @returns 
  */
-function getMockData(ctxSize,length=240) {
+function getMockData(ctxSize,length=480 *2) {
     let data = [0];
     for (let index = 0; index < length; index++) {
         data.push(Math.random() * 20);
@@ -59,6 +59,7 @@ function getMockData(ctxSize,length=240) {
  * @param {*} width 
  * @param {*} height 
  */
+// eslint-disable-next-line no-unused-vars
 function clearCanvas(ctx, width, height) {
     ctx.clearRect(0, 0, width, height);
 }
@@ -70,11 +71,6 @@ function drawBackground(canvasBody, ctxSize) {
     let data = getMockData(ctxSize);
     let [width, height] = [ctxSize.ctxWidth, ctxSize.ctxHeight];
 
-    // const {Ylinear:scaller, } = ScaleHandler(data, height);
-    // for (let index = 0; index < data.length; index++) {
-    //     data[index] = scaller(data[index]);
-    // }
-    
     //加一个判断，如果不支持canvas也不至于报错
     if (!canvasBody.leftMap.getContext) {
         console.log("err");
@@ -107,43 +103,67 @@ function drawBackground(canvasBody, ctxSize) {
         backAnimationController,
         drawActionController,
     });
-    mainController;
-    
     
     gridTool.drawAllGrid(ctx);
     gridTool_right.drawAllGrid(ctx2);
     mainController.run();
-
-    // drawActionController.runAnimation(
-    //     (index) => {
-    //         if(index !=0 && index % 120 == 0){
-    //             deleteElements(canvasBody.leftMap);
-    //             CreateCanvasElement(width, height);
-    //             // myDrawTool.drawHeartLine(ctx, height, data[index]);
-    //             // ctx = ctx2;
-    //             // myDrawTool.nodeIndex = 0;
-    //         }
-    //         myDrawTool.drawHeartLine(ctx, height, data[index]);
-    //     }
-    // );
-
-    // backAnimationController.runAnimation(
-    //     (index) => {
-    //         if(index!=0 && index%120 == 0){
-    //             // changeViewSeq();
-    //             d3.selectAll(".heart-map-item")
-    //                 .style('left', "0px")
-    //                 .style("transition", `none`);
-    //         }
-    //         d3.selectAll(".heart-map-item")
-    //             .transition(200)
-    //             .style('left', - (index % 120) * 5 + "px")
-    //             .style("transition", `all linear 0.2s`);
-    //     }
-    // );
-    clearCanvas;
 }
 
+
+class DrawPen{
+    /**
+     * 运行
+     * @param {*} canvasBody 
+     * @param {*} ctxSize 
+     * @returns 
+     */
+    run(canvasBody, ctxSize){
+        let data = getMockData(ctxSize);
+        let [width, height] = [ctxSize.ctxWidth, ctxSize.ctxHeight];
+
+        //加一个判断，如果不支持canvas也不至于报错
+        if (!canvasBody.leftMap.getContext) {
+            console.log("err");
+            alert("Can't draw background");
+            return ;
+        }
+        let ctx2 = canvasBody.leftMap.getContext('2d');
+        const ctx = canvasBody.rightMap.getContext('2d');
+        // 更加清晰
+        ctx.translate(0.5,0.5);
+        ctx.save();
+        ctx2.translate(0.5,0.5);
+        ctx2.save();
+        
+        const gridTool = new GridDraw(width,height);
+        const gridTool_right = new GridDraw(width,height);
+        const myDrawTool = new drawTools(5);
+        const drawActionController = new MapAnimationController(480, 100);
+        const backAnimationController = new MapAnimationController(240, 100);
+
+        gridTool.drawAllGrid(ctx);
+        gridTool_right.drawAllGrid(ctx2);
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = "rgba(0,166,251,1)";
+        ctx.save();
+
+        const mainController = new DrawTaskMainController({
+            ctx,
+            data,
+            MoveStep:5,
+            gridTool,
+            DrawTool:myDrawTool,
+            canvasSize:{width, height},
+            backAnimationController,
+            drawActionController,
+        });
+        mainController.run();
+        this.mainController = mainController;
+    }
+}
+
+
 export {
-    drawBackground
+    drawBackground,
+    DrawPen
 };
