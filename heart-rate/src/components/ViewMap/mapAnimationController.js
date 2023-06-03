@@ -3,20 +3,23 @@ export default class MapAnimationController {
     constructor(
         limitCount,
         drawDuration = 200,
-        mapMoveDuration = 200,
     ){
         this.drawDuration = drawDuration;
-        this.mapMoveDuration = mapMoveDuration;
         this.dataIdx = -1;
         this.limitCount = limitCount;
         this.runStep=5;
         this.useLimit = false;
         this.pause = false;
+        this.reversed = false;
     }
 
     get dataIndex(){
         if(!this.pause){
-            this.dataIdx++;
+            if(!this.reversed){
+                this.dataIdx++;
+            } else if(this.dataIdx>=1) {
+                this.dataIdx--;
+            }
         }
         return this.dataIdx;
     }
@@ -26,8 +29,18 @@ export default class MapAnimationController {
         this.dataIdx = step;
     }
     
-    pauseAnimation(){
-        this.pause = !this.pause;
+    /**
+     * 修改运行方向
+     */
+    changeDirection(direction){
+        this.reversed = direction;
+    }
+
+    /**
+     * 停止动画
+     */
+    pauseAnimation(pas){
+        this.pause = pas;
     }
 
     /**

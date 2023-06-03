@@ -20,12 +20,14 @@ export default class DrawTaskMainController {
         this.drawActionController = drawActionController;
         this.backAnimationController = backAnimationController;
         this.signalStepCount = canvasSize.width / MoveStep;
+        this.movePre=-1;
     }
 
     run(){
         this.runDrawLine();
         this.runMoveGrid();
     }
+
 
 
     /**
@@ -58,7 +60,7 @@ export default class DrawTaskMainController {
                 d3.selectAll(".heart-map-item")
                     // .transition(100)
                     .style('left', this.getBackLeft(index) + "px")
-                    .style("transition", `all linear 0.1s`);
+                    .style("transition", `all linear ${this.backAnimationController.drawDuration/1000}s`);
             }
         );
     }
@@ -68,12 +70,32 @@ export default class DrawTaskMainController {
     }
 
     /**
+     * 修改运动的方向
+     */
+    MoveReverseDirection(){
+        const {backAnimationController, drawActionController} = this;
+        drawActionController.pauseAnimation(true);
+        backAnimationController.pauseAnimation(false);
+        backAnimationController.changeDirection(true);
+    }
+
+    /**
+     * 向后移动
+     */
+    MoveNroDirection(){
+        const {backAnimationController, drawActionController} = this;
+        drawActionController.pauseAnimation(false);
+        backAnimationController.pauseAnimation(false);
+        backAnimationController.changeDirection(false);
+    }
+    
+    
+    /**
      * 停止动画
      */
     pauseAnimation() {
-        this.backAnimationController.pauseAnimation(true);
-        this.drawActionController.pauseAnimation(true);
-
+        this.backAnimationController.pauseAnimation(!this.backAnimationController.pause);
+        this.drawActionController.pauseAnimation(!this.drawActionController.pause);
     }
 
     /**
@@ -111,13 +133,15 @@ export default class DrawTaskMainController {
         console.dir(d3.selectAll(".heart-map-item"));
         // const preElement = d3.selectAll(".heart-map-item")._groups[0][1];
         // d3.select(preElement)
-        //     .style("transition", `all linear 1000000s`)
-        //     .style("position", "absolute")
-        //     .style("left", "0px");
-        const lCanvas = document.querySelectorAll(".heart-map-item")[1];
-        lCanvas.setAttribute("style", "position:absolute;left:0px");
+        //     .style("transition", `none`)
+            // .style("position", "absolute")
+            // .style("left", "0px");
+        // const lCanvas = document.querySelectorAll(".heart-map-item")[1];
+        // lCanvas.setAttribute("style", "position:absolute;left:0px");
 
-        this.deleteElements();
+        // setTimeout(() => {
+            this.deleteElements();
+        // },0);
         d3.selectAll(".heart-map-item")
             .style('position', "relative")
             .style('left', "0px")

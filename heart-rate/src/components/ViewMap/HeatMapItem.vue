@@ -1,15 +1,38 @@
 <template>
     <div class="map-item">
         <div class="item-controller" >
-            <a-button type="primary" 
-                :loading="iconLoading" 
-                @click="pause">
-                <template #icon><PoweroffOutlined /></template>
-            </a-button>
+            <div class="i-space" >
+                <a-button 
+                    type="primary" 
+                    :loading="iconLoading" 
+                    :disabled="disabled_btn_pre"
+                    @click="handle_pre_move">
+                    <template #icon><CaretLeftOutlined /></template>
+                    
+                </a-button>
+
+                <a-button type="primary" 
+                    :loading="iconLoading" 
+                    :disabled="disabled_btn2_pause"
+                    @click="pause">
+                    <template #icon><PoweroffOutlined /></template>
+                </a-button>
+
+                <a-button type="primary" 
+                    :loading="iconLoading" 
+                    :disabled="disabled_btn3_next"
+                    @click="handle_next_move">
+                    <template #icon><CaretRightOutlined /></template>
+                    
+                </a-button>
+            </div>
+            
+
         </div>
         <div class="heart-map-item-wrap" >
             <canvas 
-                class="heart-map-item drawing_left_map" :width="ctxSize.ctxWidth" :height="ctxSize.ctxHeight" >
+                class="heart-map-item drawing_left_map" :width="600" :height="200" >
+                <!-- class="heart-map-item drawing_left_map" :width="ctxSize.ctxWidth" :height="ctxSize.ctxHeight" > -->
             </canvas>
             <canvas 
                 class="heart-map-item drawing_right_map" :width="ctxSize.ctxWidth" :height="ctxSize.ctxHeight" >
@@ -23,20 +46,28 @@
 
 import { defineComponent } from 'vue';
 import { DrawPen  } from "./draw_back"
-import { PoweroffOutlined } from '@ant-design/icons-vue';
+import { PoweroffOutlined, CaretLeftOutlined, CaretRightOutlined } from '@ant-design/icons-vue';
 
 export default defineComponent({
     name: 'HeatMapItem',
     components:{
         PoweroffOutlined,
+        CaretLeftOutlined,
+        CaretRightOutlined,
     },
     data() {
-        let ctxSize = {ctxWidth:600, ctxHeight:200}
+        let ctxSize = {ctxWidth:10000, ctxHeight:200}
         const drawPen = new DrawPen();
+        let disabled_btn_pre = false;
+        let disabled_btn2_pause = false;
+        let disabled_btn3_next = false;
         
         return {
             ctxSize,
-            drawPen
+            drawPen,
+            disabled_btn_pre,
+            disabled_btn3_next,
+            disabled_btn2_pause,
         };
     },
     created(){
@@ -57,7 +88,20 @@ export default defineComponent({
         getElement(class_name){
             return document.querySelector(class_name);
         },
+        handle_next_move(){
+            this.disabled_btn_pre = true;
+            this.disabled_btn3_next = false;
+            this.drawPen.mainController.MoveReverseDirection();
+        },
+        handle_pre_move(){
+            this.disabled_btn_pre = false;
+            this.disabled_btn3_next = true;
+            this.drawPen.mainController.MoveNroDirection();
+
+        },
         pause(){
+            this.disabled_btn3_next = !this.disabled_btn3_next;
+            this.disabled_btn_pre = false;
             this.drawPen.mainController.pauseAnimation();
         }
     },
@@ -71,6 +115,13 @@ export default defineComponent({
 </script>
 
 <style >
+.i-space{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 0 20%;
+}
+
 .heart-map-item-wrap{
     width: 600px;
     height: 200px;
@@ -104,14 +155,17 @@ export default defineComponent({
 
 .map-item .item-controller{
     width: 200px;
-    border-left: 1px solid var(--juejin-sub-6-orange);
+    border-left: 10px solid ;
+    border-image: linear-gradient(to right, rgb(14, 93, 184), #07182e 0.7%) 1;
     border-right: 1px solid #ccc;
     transition: all ease-in-out 0.2s;
     user-select: none;
+    color: rgb(14, 93, 184);
+    border-radius: 5px;
 }
 
-.map-item .item-controller:hover{
+/* .map-item .item-controller:hover{
     border-left: 2px solid var(--juejin-sub-6-orange);
-}
+} */
 
 </style>
