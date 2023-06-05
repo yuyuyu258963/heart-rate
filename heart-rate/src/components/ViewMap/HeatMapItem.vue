@@ -13,7 +13,7 @@
 
                 <a-button type="primary" 
                     :loading="iconLoading" 
-                    :disabled="disabled_btn2_pause"
+                    :disabled="!disabled_btn2_pause"
                     @click="pause">
                     <template #icon><PoweroffOutlined /></template>
                 </a-button>
@@ -26,8 +26,7 @@
                     
                 </a-button>
             </div>
-            
-
+            <MyClock :showState="showClock ? 'show':'hidden'" />
         </div>
         <div class="heart-map-item-wrap" >
             <canvas 
@@ -46,7 +45,10 @@
 
 import { defineComponent } from 'vue';
 import { DrawPen  } from "./draw_back"
+import MyClock from "./MyClock"
 import { PoweroffOutlined, CaretLeftOutlined, CaretRightOutlined } from '@ant-design/icons-vue';
+
+
 
 export default defineComponent({
     name: 'HeatMapItem',
@@ -54,17 +56,20 @@ export default defineComponent({
         PoweroffOutlined,
         CaretLeftOutlined,
         CaretRightOutlined,
+        MyClock,
     },
     data() {
         let ctxSize = {ctxWidth:10000, ctxHeight:200}
         const drawPen = new DrawPen();
         let disabled_btn_pre = false;
-        let disabled_btn2_pause = false;
+        let disabled_btn2_pause = true;
         let disabled_btn3_next = false;
+        let showClock = false;
         
         return {
             ctxSize,
             drawPen,
+            showClock,
             disabled_btn_pre,
             disabled_btn3_next,
             disabled_btn2_pause,
@@ -82,24 +87,25 @@ export default defineComponent({
                     
                     this.ctxSize);
         }
-
     }, 
     methods:{
         getElement(class_name){
             return document.querySelector(class_name);
         },
         handle_next_move(){
-            this.disabled_btn_pre = true;
-            this.disabled_btn3_next = false;
-            this.drawPen.mainController.MoveReverseDirection();
-        },
-        handle_pre_move(){
             this.disabled_btn_pre = false;
             this.disabled_btn3_next = true;
+            this.drawPen.mainController.MoveReverseDirection();
+            this.showClock = true; 
+        },
+        handle_pre_move(){
+            this.disabled_btn_pre = true;
+            this.disabled_btn3_next = false;
             this.drawPen.mainController.MoveNroDirection();
-
+            this.showClock = true; 
         },
         pause(){
+            this.showClock = !this.showClock; 
             this.disabled_btn3_next = !this.disabled_btn3_next;
             this.disabled_btn_pre = false;
             this.drawPen.mainController.pauseAnimation();
@@ -162,6 +168,7 @@ export default defineComponent({
     user-select: none;
     color: rgb(14, 93, 184);
     border-radius: 5px;
+    overflow: hidden;
 }
 
 /* .map-item .item-controller:hover{

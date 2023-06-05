@@ -157,9 +157,11 @@ class DrawPen{
             backAnimationController,
             drawActionController,
         });
+        mainController.pauseAnimation();
         mainController.run();
         this.mainController = mainController;
     }
+
 }
 
 
