@@ -58,18 +58,18 @@ export default class MapAnimationController {
         let callback = () => {
             // 停止后就不再运行了
             if(this.pause){
-                timerId = setTimeout(callback, delay);
+                timerId = setTimeout(callback, this.drawDuration);
                 return;
             }
             if(this.limitCount > this.dataIdx || !this.useLimit){
                 fn(this.dataIndex);
-                timerId = setTimeout(callback, delay);
+                timerId = setTimeout(callback, this.drawDuration);
             } else {
                 clearTimeout(timerId);
             }
             
         };
-        timerId = setTimeout(callback, delay);
+        timerId = setTimeout(callback, this.drawDuration);
         return {
             clear:() => clearTimeout(timerId),
         };

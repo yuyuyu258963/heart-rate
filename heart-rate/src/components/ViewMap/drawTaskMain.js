@@ -40,6 +40,7 @@ export default class DrawTaskMainController {
                 // 将每次的都画完，然后接下一个
                 this.DrawTool.drawHeartLine(this.ctx, this.canvasSize.height, this.getLineData(index));
                 if(this.isChangeDrawMap(index)){
+                    console.dir("saasa");
                         this.CreateCanvasElement(
                             this.canvasSize.width,
                             this.canvasSize.height,
@@ -105,7 +106,7 @@ export default class DrawTaskMainController {
      * @returns 
      */
     isChangeDrawMap(index){
-        return index !=1 && index % this.signalStepCount == 1;
+        return index !=1 && index != this.signalStepCount - 1   && index % this.signalStepCount == 1;
     }
 
     /**

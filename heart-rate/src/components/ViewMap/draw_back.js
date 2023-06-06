@@ -174,7 +174,6 @@ class DrawPen{
      * 修改页面的初始位置
      */
     setCanvasBaseX(baseX){
-        console.log(baseX);
         this.mainController.back_baseX = baseX * 200 ;
     }
 
@@ -183,13 +182,33 @@ class DrawPen{
      */
     setLineXSpan(val){
         this.mainController.DrawTool.step = val ;
+        this.mainController.MoveStep = val ;
+        this.mainController.signalStepCount = this.mainController.canvasSize.width.val ;
     }
 
+    /**
+     * 设置数据
+     * @param {*} data 
+     */
+    setDataSet(data){
+        this.mainController.data = data ;
+    }
+
+    /**
+     * 设置移动速度
+     * @param {*} speed 
+     */
+    setMoveSpeed(speed){
+        this.mainController.drawActionController.drawDuration = 100 / speed;
+        this.mainController.backAnimationController.drawDuration = 100 / speed;
+
+    }
 
 }
 
 
 export {
     drawBackground,
-    DrawPen
+    DrawPen,
+    getMockData,
 };

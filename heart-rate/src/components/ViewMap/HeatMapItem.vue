@@ -54,6 +54,9 @@
                     
                 </a-button>
             </div>
+            <div style="padding: 0 10%;" >
+                <a-slider v-model:value="MoveSpeed"  :min="1" :max="3" />
+            </div>
             <div class="dataUpload-span" >
                 <div >
                     <a-select
@@ -84,7 +87,7 @@
         </div>
         <div class="heart-map-item-wrap" >
             <canvas 
-                class="heart-map-item drawing_left_map" :width="1100" :height="300" >
+                class="heart-map-item drawing_left_map" :width="1100" :height="400" >
                 <!-- class="heart-map-item drawing_left_map" :width="ctxSize.ctxWidth" :height="ctxSize.ctxHeight" > -->
             </canvas>
             <canvas 
@@ -102,6 +105,7 @@ import MyClock from "./MyClock"
 // import {Modal} from "ant-design-vue";
 import { PoweroffOutlined, CaretLeftOutlined, CaretRightOutlined, SettingFilled, UploadOutlined } from '@ant-design/icons-vue';
 import {requestData} from "../../axios/handlePost"
+import {showMessage} from "../../utls/showMsg";
 
 
 
@@ -116,7 +120,7 @@ export default defineComponent({
         UploadOutlined,
     },
     data() {
-        let ctxSize = {ctxWidth:1100, ctxHeight:300}
+        let ctxSize = {ctxWidth:1100, ctxHeight:400}
         const drawPen = new DrawPen();
         let disabled_btn_pre = false;
         let disabled_btn2_pause = true;
@@ -130,11 +134,15 @@ export default defineComponent({
         const lineXSpan = ref(5);
         // 数据选择
         const dataSetSelectName = ref("未选择数据")
+        const dataSet = ref([]);
+        const MoveSpeed = ref(1);
         
         return {
+            dataSet,
             ctxSize,
             drawPen,
             showClock,
+            MoveSpeed,
             disabled_btn_pre,
             disabled_btn3_next,
             disabled_btn2_pause,
@@ -169,8 +177,18 @@ export default defineComponent({
          * 处理请求数据
          */
         handleSelectData(){
-            requestData({});
-            // this.isuploadDataLoading = true;
+            if(this.dataSetSelectName == "未选择数据"){
+                showMessage(1, "请先选择数据");
+                return;
+            }
+            this.isuploadDataLoading = true;
+            requestData({person:this.dataSetSelectName}).then((res) => {
+                console.log(res);
+                this.isuploadDataLoading = false;
+                if(!res) return;
+                this.dataSet = res.data.data;
+                this.drawPen.setDataSet(res.data.data);
+            });
         },
         /**
          * 交互框事件
@@ -198,6 +216,10 @@ export default defineComponent({
             this.showClock = true;
         },
         pause(){
+            if(this.dataSet.length == 0){
+                showMessage(1, "请先选择数据");
+                return;
+            }
             this.showClock = !this.showClock; 
             this.disabled_btn3_next = !this.disabled_btn3_next;
             this.disabled_btn_pre = false;
@@ -205,7 +227,9 @@ export default defineComponent({
         }
     },
     watch:{
-        
+        MoveSpeed(){
+            this.drawPen.setMoveSpeed(this.MoveSpeed);
+        }
     },
     updated(){
         // console.log("updated");
@@ -223,7 +247,7 @@ export default defineComponent({
 
 .heart-map-item-wrap{
     width: 1100px;
-    height: 300px;
+    height: 400px;
     overflow: hidden;
     display: flex;
     padding: none;
@@ -244,7 +268,7 @@ export default defineComponent({
 
 .map-item{
     width: 100%;
-    height: 320px;
+    height: 420px;
     display: inline-flex;
     flex-direction: row ;
     justify-content: center;
@@ -270,7 +294,7 @@ export default defineComponent({
 }
 
 .dataUpload-span{
-    height: 80px;
+    height: 50px;
     width: 100%;
     padding: 5px 10%;
     display: flex;
