@@ -160,7 +160,31 @@ class DrawPen{
         mainController.pauseAnimation();
         mainController.run();
         this.mainController = mainController;
+
     }
+
+    /**
+     * 修改设置的警戒线
+     */
+    setLimitLine(new_limit){
+        this.mainController.DrawTool.limit = new_limit;
+    }
+
+    /**
+     * 修改页面的初始位置
+     */
+    setCanvasBaseX(baseX){
+        console.log(baseX);
+        this.mainController.back_baseX = baseX * 200 ;
+    }
+
+    /**
+     * 设置绘制时的x间隔
+     */
+    setLineXSpan(val){
+        this.mainController.DrawTool.step = val ;
+    }
+
 
 }
 

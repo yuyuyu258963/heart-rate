@@ -21,6 +21,7 @@ export default class DrawTaskMainController {
         this.backAnimationController = backAnimationController;
         this.signalStepCount = canvasSize.width / MoveStep;
         this.movePre=-1;
+        this.back_baseX = 0;
     }
 
     run(){
@@ -59,7 +60,7 @@ export default class DrawTaskMainController {
             (index) => {
                 d3.selectAll(".heart-map-item")
                     // .transition(100)
-                    .style('left', this.getBackLeft(index) + "px")
+                    .style('left', - this.back_baseX + this.getBackLeft(index) + "px")
                     .style("transition", `all linear ${this.backAnimationController.drawDuration/1000}s`);
             }
         );

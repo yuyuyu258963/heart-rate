@@ -31,7 +31,7 @@ export default defineComponent({
 
 <style lang="scss">
 #heart-map-div{
-    width: 60%;
+    width: 80%;
     height: 90%;
     border: 1px solid red;
     // background-color: white;

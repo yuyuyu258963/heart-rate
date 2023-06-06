@@ -6,8 +6,8 @@ export default class drawTools {
     constructor(
         step=5,
         limit=2/3,
-        yScale=1/4,
-        yStartPositions=1/4,
+        yScale=3/4,
+        yStartPositions=1/2,
         lineWidth=1,
         warningLineColor="#f53f3f",
         normalLineColor="rgb(119, 150, 235)",

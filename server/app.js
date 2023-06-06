@@ -1,15 +1,17 @@
+const cors = require('cors')
 const express = require('express');
 const bodyParser = require('body-parser')
 var multiparty = require('multiparty');
 const fs = require('fs');
 const path  = require('path');
 const app = express();
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(cors());
 // app.use(express.static(__dirname + '/static')); //设置静态文件目录
 // 跨域
 var allowCrossDomain = function(req, res, next) {//设置response头部的中间件
-  res.header('Access-Control-Allow-Origin', 'http://localhost:8089');//8089是vue项目的端口，这里相对于白名单
+  res.header('Access-Control-Allow-Origin', 'http://localhost:8081');//8089是vue项目的端口，这里相对于白名单
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
   res.header('Access-Control-Allow-Credentials','true');

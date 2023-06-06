@@ -97,7 +97,7 @@ export default {
             ctx.translate(75,75);
             ctx.scale(0.4,0.4);
             ctx.rotate(-Math.PI/2);
-            ctx.strokeStyle = "black";
+            ctx.strokeStyle = "white";
             ctx.fillStyle = "white";
             ctx.lineWidth = 8;
             ctx.lineCap = "round";
@@ -197,14 +197,14 @@ export default {
 
 <style>
     #clock-canvas-war{
-        display: flex;
+        /* display: flex; */
         justify-content: center;
         flex-direction: column ;
         transition: opacity ease-in 0.5s;
     }
     #clock-canvas{
         display: relative;
-        margin-left: 30px;
+        margin-left: 14px;
     }
     #clock-number{
         text-align:center;
