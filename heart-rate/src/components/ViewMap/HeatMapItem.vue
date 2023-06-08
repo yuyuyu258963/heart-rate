@@ -57,6 +57,12 @@
             <div style="padding: 0 10%;" >
                 <a-slider v-model:value="MoveSpeed"  :min="1" :max="3" />
             </div>
+            <div  style="padding: 0 10%;" >
+                数据集:{{ dataSetSelectName == 1 ? "chb01_01" : dataSetSelectName == 2 ? "chb01_02" : "未选择" }}
+            </div>
+            <div  style="padding: 0 10%;" >
+                系列名:{{ selectSeries ? selectSeries : "未选择" }}
+            </div>
             <div class="dataUpload-span" >
                 <div >
                     <a-select
@@ -111,6 +117,7 @@ import {showMessage} from "../../utls/showMsg";
 
 export default defineComponent({
     name: 'HeatMapItem',
+    props:["selectSeries"],
     components:{
         PoweroffOutlined,
         CaretLeftOutlined,
@@ -177,12 +184,12 @@ export default defineComponent({
          * 处理请求数据
          */
         handleSelectData(){
-            if(this.dataSetSelectName == "未选择数据"){
+            if(this.dataSetSelectName == "未选择数据" || this.selectSeries == null){
                 showMessage(1, "请先选择数据");
                 return;
             }
             this.isuploadDataLoading = true;
-            requestData({person:this.dataSetSelectName}).then((res) => {
+            requestData({person:this.dataSetSelectName, name:this.selectSeries}).then((res) => {
                 console.log(res);
                 this.isuploadDataLoading = false;
                 if(!res) return;
@@ -229,6 +236,9 @@ export default defineComponent({
     watch:{
         MoveSpeed(){
             this.drawPen.setMoveSpeed(this.MoveSpeed);
+        },
+        selectSeries(){
+            showMessage(0, `选择${this.selectSeries}成功!`);
         }
     },
     updated(){
@@ -243,6 +253,7 @@ export default defineComponent({
     flex-direction: row;
     justify-content: space-around;
     padding: 0 10%;
+    margin-top: 10px;
 }
 
 .heart-map-item-wrap{

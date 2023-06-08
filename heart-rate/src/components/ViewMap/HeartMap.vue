@@ -1,16 +1,22 @@
 <template>
     <div id="heart-map-div" >
-        <HeatMapItem />
+        <HeatMapItem :selectSeries="selectSeries" />
         <div style="flex:1;" ></div>
         <div class="item-canvas-map-view" >
-            <canvas  
-                v-for="item in seriesData" 
+            <div v-for="item in seriesData" 
                 :key="item" 
-                :class="item"
-                width="280"
-                height="200"
+                @click="() => selectSeries = item"
                 >
-            </canvas>
+                <canvas  
+                    :class="item"
+                    width="280"
+                    height="200"
+                    >
+                </canvas>
+                <div style="text-align: center;" >
+                    {{item}}
+                </div>
+            </div>
         </div>
         <div style="flex:1;" ></div>
     </div>
@@ -31,10 +37,17 @@ export default defineComponent({
     },
     data() {
         const seriesData = ["F7-T7","P3-O1","F8-T8","T7-FT9"];
+        const selectSeries = null;
         
         return {
             heartData:{},
-            seriesData
+            seriesData,
+            selectSeries,
+        }
+    },
+    watch:{
+        selectSeries(){
+            console.dir(this.selectSeries)
         }
     },
     methods: {
@@ -58,8 +71,6 @@ export default defineComponent({
         }
     },
     mounted() {
-        // const ctx = document.querySelector(".heart-map-item");
-        // drawBackground(canvasBody);
         this.drawMaps();
     },
 })
@@ -69,6 +80,7 @@ export default defineComponent({
 #heart-map-div{
     width: 80%;
     height: 90%;
+    user-select: none;
     // border: 1px solid red;
     // background-color: white;
     display: flex;
@@ -92,11 +104,13 @@ export default defineComponent({
 
 .item-canvas-map-view{
     display: flex;
+    overflow: hidden;
     justify-content: space-between;
     padding: 10px;
+    cursor: pointer;
     canvas{
         border: 1px solid black;
-        transform: rotateY(48deg);
+        transform: rotateY(30deg);
         opacity: 1;
         // border: 0;
     }

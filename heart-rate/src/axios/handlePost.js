@@ -13,7 +13,7 @@ async function  requestData(params)   {
     // formData.append("t0", params.person);
     // formData.append("tf", params.person);
     formData.append("person", params.person);
-    formData.append("name", "F7-T7");
+    formData.append("name", params.name);
     formData.append("t0", 0);
     formData.append("tf", 3000);
     
